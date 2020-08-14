@@ -4,22 +4,34 @@ coolbeevip/docker-alpine-kafka
 docker-compose.yml
 
 ```yaml
-version: '2'
+version: '3.2'
 services:
-  zookeeper:
+  nc-zookeeper:
     image: coolbeevip/docker-alpine-zookeeper
+    hostname: nc-zookeeper
+    container_name: nc-zookeeper
+    restart: always
+    networks:
+      - nc-network
     ports:
       - 2181:2181
-  kafka:
+  nc-kafka:
     image: coolbeevip/docker-alpine-kafka
+    hostname: nc-kafka
+    container_name: nc-kafka
+    restart: always
+    networks:
+      - nc-network
     ports:
       - 9092:9092
     environment:
-      KAFKA_ADVERTISED_HOST_NAME: 192.168.99.100
-      KAFKA_CREATE_TOPICS: "test:1:1"
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - KAFKA_ADVERTISED_HOST_NAME=10.0.0.20
+      - KAFKA_CREATE_TOPICS=test:1:1
+      - KAFKA_ZOOKEEPER_CONNECT=nc-zookeeper:2181
+networks:
+  nc-network:
+    external: true
+
 ```
 
 * 修改docker-compose.yml中的 KAFKA_ADVERTISED_HOST_NAME 以匹配您的 docker 主机IP（注意：如果要运行多个代理，请不要使用localhost 或 127.0.0.1 作为主机ip）
